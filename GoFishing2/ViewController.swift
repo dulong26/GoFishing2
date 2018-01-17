@@ -9,17 +9,39 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
+    var gameManager: GameManager?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        gameManager = GameManager()
+        self.view.addSubview((self.gameManager?.hookView)!)
+        self.gameManager?.addFishToViewController(viewController: self, width: Int(self.view.bounds.width), height: Int(self.view.bounds.height))
+        
+        self.view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTap(sender:))))
+        
+        _ = Timer.scheduledTimer(timeInterval: 0.025, target: self.gameManager!, selector: Selector(("updateMove")), userInfo: nil, repeats: true)
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    @objc func onTap(sender: UITapGestureRecognizer) {
+        let tapPoint = sender.location(in: self.view)
+        self.gameManager?.dropHookerAtX(x: Int(tapPoint.x))
     }
-
-
+    
+    @IBAction func btAddFish(_ sender: UIButton) {
+        self.gameManager?.addFishToViewController(viewController: self, width: Int(self.view.bounds.width), height: Int(self.view.bounds.height))
+    }
+    
+    @IBAction func btReset(_ sender: UIButton) {
+        self.gameManager?.fishViews?.removeAllObjects()
+        for object in self.view.subviews {
+            if object.isKind(of: FishView.self) {
+                object.removeFromSuperview()
+            }
+        }
+        self.gameManager?.addFishToViewController(viewController: self, width: Int(self.view.bounds.width), height: Int(self.view.bounds.height))
+    }
+    
 }
 
